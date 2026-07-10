@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head><%- include('../partials/head', { title: 'ورود مدیر | ابزار نبهانی' }) %></head>
+<body>
+  <div class="container" style="padding-top:60px;">
+    <div class="brand" style="text-align:center;font-size:24px;font-weight:bold;color:var(--green);margin-bottom:24px;">پنل مدیریت ابزار نبهانی</div>
+
+    <% if (error) { %><div class="alert error"><%= error %></div><% } %>
+
+    <div class="card">
+      <p>ورود مخصوص مدیر فروشگاه. شماره همراه ثبت‌شده به‌عنوان مدیر را وارد کنید.</p>
+      <form action="<%= adminBase %>/login/request-code" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="field">
+          <label>شماره همراه مدیر</label>
+          <input type="tel" name="phone" placeholder="09xxxxxxxxx" pattern="09[0-9]{9}" required autofocus>
+        </div>
+        <button class="btn" type="submit">درخواست کد ورود</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

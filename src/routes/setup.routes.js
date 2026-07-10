@@ -1,0 +1,34 @@
+// این مسیر فقط برای راه‌اندازی اولیه است: تبدیل یک شماره موبایل به «ادمین».
+// فقط زمانی کار می‌کند که متغیر محیطی ADMIN_SETUP_TOKEN تنظیم شده باشد و
+// توکن ارسالی دقیقا با آن یکسان باشد. پیشنهاد می‌شود بعد از ساخت اولین ادمین
+// این متغیر را از روی سرور حذف کنید تا این مسیر کاملا غیرفعال شود.
+const express = require('express');
+const router = express.Router();
+const db = require('../db');
+const { isValidIranPhone } = require('../services/otp');
+
+router.get('/setup-admin', (req, res) => {
+  const setupToken = process.env.ADMIN_SETUP_TOKEN;
+  if (!setupToken) {
+    return res.status(404).render('error', { message: 'این مسیر غیرفعال است' });
+  }
+  const { token, phone } = req.query;
+  if (!token || token !== setupToken) {
+    return res.status(403).render('error', { message: 'توکن نامعتبر است' });
+  }
+  if (!phone || !isValidIranPhone(String(phone))) {
+    return res.status(400).render('error', { message: 'شماره موبایل معتبر نیست. از ?phone=09xxxxxxxxx استفاده کنید' });
+  }
+
+  let user = db.prepare('SELECT * FROM users WHERE phone=?').get(phone);
+  if (!user) {
+    const info = db.prepare(`INSERT INTO users (phone, role) VALUES (?, 'admin')`).run(phone);
+    user = db.prepare('SELECT * FROM users WHERE id=?').get(info.lastInsertRowid);
+  } else {
+    db.prepare(`UPDATE users SET role='admin' WHERE id=?`).run(user.id);
+  }
+
+  res.render('error', { message: `شماره ${phone} با موفقیت به ادمین تبدیل شد. حالا از طریق پنل مدیریت وارد شوید و سپس این متغیر ADMIN_SETUP_TOKEN را از سرور حذف کنید.` });
+});
+
+module.exports = router;

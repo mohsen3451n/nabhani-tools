@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head><%- include('partials/head', { title: 'پرداخت ناموفق | ابزار نبهانی' }) %></head>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="container">
+    <div class="card" style="text-align:center;">
+      <h2>❌ پرداخت ناموفق بود</h2>
+      <p>سفارش #<%= order.id %> پرداخت نشد. می‌توانید دوباره تلاش کنید یا از روش کارت به کارت استفاده کنید.</p>
+    </div>
+    <a class="btn" href="/orders">سفارش‌های من</a>
+    <a class="btn secondary" href="/">بازگشت به فروشگاه</a>
+  </div>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

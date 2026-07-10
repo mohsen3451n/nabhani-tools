@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head><%- include('../partials/head', { title: 'دسته‌بندی‌ها | پنل مدیریت' }) %></head>
+<body>
+  <%- include('../partials/admin-topbar') %>
+  <div class="container">
+    <div class="card">
+      <form action="<%= adminBase %>/categories/new" method="POST" style="display:flex;gap:10px;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="text" name="name" placeholder="نام دسته‌بندی جدید" required style="flex:1;background:var(--bg-soft);border:1px solid var(--border);color:#fff;border-radius:10px;padding:10px;">
+        <button class="btn small" type="submit">افزودن</button>
+      </form>
+    </div>
+
+    <% categories.forEach(function(c) { %>
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+        <span><%= c.name %></span>
+        <form action="<%= adminBase %>/categories/<%= c.id %>/delete" method="POST" data-confirm="حذف شود؟">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="btn small danger" type="submit">حذف</button>
+        </form>
+      </div>
+    <% }) %>
+  </div>
+</body>
+</html>

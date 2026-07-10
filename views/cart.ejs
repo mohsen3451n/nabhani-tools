@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head><%- include('partials/head', { title: 'سبد خرید | ابزار نبهانی' }) %></head>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="container">
+    <div class="section-title">سبد خرید</div>
+
+    <% if (items.length === 0) { %>
+      <p>سبد خرید شما خالی است.</p>
+    <% } %>
+
+    <% items.forEach(function(i) { %>
+      <div class="card" style="display:flex;gap:12px;align-items:center;">
+        <img src="<%= i.product.image_url %>" style="width:70px;height:70px;object-fit:contain;border-radius:8px;background:#0e0e0e;">
+        <div style="flex:1;">
+          <div><%= i.product.name %></div>
+          <div class="price"><%= i.product.price.toLocaleString('fa-IR') %> تومان</div>
+          <form action="/cart/update" method="POST" style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="product_id" value="<%= i.product.id %>">
+            <input type="number" name="qty" value="<%= i.qty %>" min="0" max="<%= i.product.stock %>" style="width:70px;background:var(--bg-soft);border:1px solid var(--border);color:#fff;border-radius:8px;padding:6px;">
+            <button class="btn small" type="submit">به‌روزرسانی</button>
+          </form>
+        </div>
+        <form action="/cart/remove" method="POST">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="product_id" value="<%= i.product.id %>">
+          <button class="btn danger small" type="submit">حذف</button>
+        </form>
+      </div>
+    <% }) %>
+
+    <% if (items.length > 0) { %>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;font-size:16px;">
+          <span>جمع کل</span>
+          <strong class="price"><%= total.toLocaleString('fa-IR') %> تومان</strong>
+        </div>
+      </div>
+      <a class="btn" href="/checkout">ادامه و تسویه حساب</a>
+    <% } %>
+  </div>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

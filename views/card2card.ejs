@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head><%- include('partials/head', { title: 'پرداخت کارت به کارت | ابزار نبهانی' }) %></head>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="container">
+    <div class="section-title">پرداخت کارت به کارت</div>
+
+    <div class="card">
+      <p>لطفا مبلغ زیر را به شماره کارت فروشگاه واریز کنید:</p>
+      <div class="card-number"><%= shopCard.number %></div>
+      <p style="text-align:center;color:var(--text-dim);">به نام: <%= shopCard.owner %></p>
+      <div style="text-align:center;font-size:18px;margin-top:10px;">
+        مبلغ قابل پرداخت: <strong class="price"><%= order.total.toLocaleString('fa-IR') %> تومان</strong>
+      </div>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert error"><%= error %></div>
+    <% } %>
+
+    <form action="/payment/card2card/<%= order.id %>/submit" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="field">
+        <label>کد رهگیری / شماره پیگیری واریز</label>
+        <input type="text" name="tracking_code" required placeholder="مثال: 123456789">
+      </div>
+      <button class="btn" type="submit">ثبت واریزی</button>
+    </form>
+    <p class="otp-note">بعد از ثبت، سفارش شما بررسی و طی چند ساعت آینده تایید می‌شود و کد پیگیری برای شما پیامک خواهد شد.</p>
+  </div>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

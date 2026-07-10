@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head><%- include('partials/head', { title: 'تسویه حساب | ابزار نبهانی' }) %></head>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="container">
+    <div class="section-title">تسویه حساب</div>
+
+    <div class="card">
+      <% items.forEach(function(i) { %>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
+          <span><%= i.product.name %> × <%= i.qty %></span>
+          <span><%= i.subtotal.toLocaleString('fa-IR') %> تومان</span>
+        </div>
+      <% }) %>
+      <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:16px;">
+        <strong>جمع کل</strong>
+        <strong class="price"><%= total.toLocaleString('fa-IR') %> تومان</strong>
+      </div>
+    </div>
+
+    <form action="/checkout/place" method="POST">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <div class="card">
+        <div class="field">
+          <label>نام گیرنده</label>
+          <input type="text" name="receiver_name" required>
+        </div>
+        <div class="field">
+          <label>شماره تماس گیرنده</label>
+          <input type="text" name="receiver_phone" required placeholder="09xxxxxxxxx">
+        </div>
+        <div class="field">
+          <label>آدرس کامل</label>
+          <textarea name="address" rows="3" required></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title" style="margin-top:0;">روش پرداخت</div>
+        <div class="field">
+          <label style="display:flex;align-items:center;gap:8px;font-size:15px;color:#fff;">
+            <input type="radio" name="payment_method" value="gateway" checked style="width:auto;">
+            درگاه بانکی آنلاین (کارت‌های شتاب)
+          </label>
+        </div>
+        <div class="field">
+          <label style="display:flex;align-items:center;gap:8px;font-size:15px;color:#fff;">
+            <input type="radio" name="payment_method" value="card2card" style="width:auto;">
+            واریز کارت به کارت و ثبت کد رهگیری
+          </label>
+        </div>
+      </div>
+
+      <button class="btn" type="submit">ثبت سفارش و پرداخت</button>
+    </form>
+  </div>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

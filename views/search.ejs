@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head><%- include('partials/head', { title: 'جستجو | ابزار نبهانی' }) %></head>
+<body>
+  <%- include('partials/topbar', { q }) %>
+  <div class="container">
+    <div class="section-title">نتایج جستجو برای «<%= q %>»</div>
+    <div class="product-grid">
+      <% products.forEach(function(p) { %>
+        <a class="product-card" href="/product/<%= p.slug %>">
+          <img src="<%= p.image_url %>" alt="<%= p.name %>">
+          <div class="name"><%= p.name %></div>
+          <div class="price"><%= p.price.toLocaleString('fa-IR') %> تومان</div>
+        </a>
+      <% }) %>
+      <% if (products.length === 0) { %><p>نتیجه‌ای یافت نشد.</p><% } %>
+    </div>
+  </div>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

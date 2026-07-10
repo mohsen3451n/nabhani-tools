@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head><%- include('partials/head', { title: 'ثبت سفارش | ابزار نبهانی' }) %></head>
+<body>
+  <%- include('partials/topbar') %>
+  <div class="container">
+    <div class="card" style="text-align:center;">
+      <h2>✅ سفارش شما ثبت شد</h2>
+      <p>کد سفارش: <strong>#<%= order.id %></strong></p>
+      <p>وضعیت: <span class="badge <%= order.status %>"><%= order.status %></span></p>
+      <% if (order.gateway_ref_id) { %><p>کد پیگیری بانکی: <%= order.gateway_ref_id %></p><% } %>
+      <% if (order.tracking_code) { %><p>کد رهگیری واریزی شما: <%= order.tracking_code %></p><% } %>
+    </div>
+
+    <div class="card">
+      <div class="section-title" style="margin-top:0;">اقلام سفارش</div>
+      <% items.forEach(function(i) { %>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
+          <span><%= i.product_name %> × <%= i.qty %></span>
+          <span><%= (i.price * i.qty).toLocaleString('fa-IR') %> تومان</span>
+        </div>
+      <% }) %>
+    </div>
+
+    <a class="btn secondary" href="/orders">مشاهده سفارش‌های من</a>
+    <a class="btn" href="/">بازگشت به فروشگاه</a>
+  </div>
+  <%- include('partials/bottom-nav') %>
+</body>
+</html>

@@ -22,10 +22,10 @@ router.get('/setup-admin', (req, res) => {
 
   let user = db.prepare('SELECT * FROM users WHERE phone=?').get(phone);
   if (!user) {
-    const info = db.prepare(`INSERT INTO users (phone, role) VALUES (?, 'admin')`).run(phone);
+    const info = db.prepare(`INSERT INTO users (phone, is_admin) VALUES (?, 1)`).run(phone);
     user = db.prepare('SELECT * FROM users WHERE id=?').get(info.lastInsertRowid);
   } else {
-    db.prepare(`UPDATE users SET role='admin' WHERE id=?`).run(user.id);
+    db.prepare(`UPDATE users SET is_admin=1 WHERE id=?`).run(user.id);
   }
 
   res.render('error', { message: `شماره ${phone} با موفقیت به ادمین تبدیل شد. حالا از طریق پنل مدیریت وارد شوید و سپس این متغیر ADMIN_SETUP_TOKEN را از سرور حذف کنید.` });

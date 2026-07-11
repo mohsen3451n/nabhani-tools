@@ -23,11 +23,13 @@ function setCustomerCookie(res, token) {
   res.cookie(CUSTOMER_COOKIE, token, cookieOpts(30 * 24 * 3600 * 1000));
 }
 function setAdminCookie(res, token) {
+  // کوکی پنل مدیریت کاملا جدا از کوکی مشتری است تا هیچ‌وقت با هم قاطی نشوند
   res.cookie(ADMIN_COOKIE, token, cookieOpts(8 * 3600 * 1000));
 }
 function clearCustomerCookie(res) { res.clearCookie(CUSTOMER_COOKIE, { path: '/' }); }
 function clearAdminCookie(res) { res.clearCookie(ADMIN_COOKIE, { path: '/' }); }
 
+// این میدلور فقط user را در res.locals می‌گذارد، بلاک نمی‌کند
 function loadCustomer(req, res, next) {
   const token = req.cookies?.[CUSTOMER_COOKIE];
   res.locals.customer = null;
@@ -54,7 +56,7 @@ function loadAdmin(req, res, next) {
   if (token) {
     try {
       const payload = jwt.verify(token, process.env.JWT_ADMIN_SECRET);
-      const user = db.prepare('SELECT * FROM users WHERE id=? AND role=?').get(payload.uid, 'admin');
+      const user = db.prepare('SELECT * FROM users WHERE id=? AND is_admin=1').get(payload.uid);
       if (user) res.locals.admin = user;
     } catch (e) { /* نامعتبر */ }
   }

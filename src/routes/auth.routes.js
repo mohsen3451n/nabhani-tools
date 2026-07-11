@@ -72,11 +72,10 @@ router.get('/admin-access', (req, res) => {
     return res.status(403).render('error', { message: 'شما به پنل مدیریت دسترسی ندارید.' });
   }
 
-  let adminUser = db.prepare(`SELECT * FROM users WHERE phone=? AND role='admin'`).get(customer.phone);
-  if (!adminUser) {
-    const info = db.prepare(`INSERT INTO users (phone, role) VALUES (?, 'admin')`).run(customer.phone);
-    adminUser = db.prepare('SELECT * FROM users WHERE id=?').get(info.lastInsertRowid);
-  }
+  // به‌جای ساخت رکورد تازه (که باعث خطا می‌شد چون شماره از قبل به‌عنوان مشتری ثبت شده)،
+  // فقط همان کاربر موجود را با ستون is_admin به ادمین ارتقا می‌دهیم
+  db.prepare('UPDATE users SET is_admin=1 WHERE id=?').run(customer.id);
+  const adminUser = db.prepare('SELECT * FROM users WHERE id=?').get(customer.id);
 
   const token = signAdminToken(adminUser);
   setAdminCookie(res, token);

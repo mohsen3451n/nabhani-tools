@@ -5,7 +5,7 @@
   <%- include('../partials/admin-topbar') %>
   <div class="container">
     <div class="card">
-      <form action="<%= adminBase %>/products/<%= product ? (product.id + '/edit') : 'new' %>" method="POST">
+      <form action="<%= adminBase %>/products/<%= product ? (product.id + '/edit') : 'new' %>" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="field">
           <label>نام کالا</label>
@@ -32,8 +32,18 @@
           <label>موجودی</label>
           <input type="number" name="stock" value="<%= product ? product.stock : 0 %>" min="0">
         </div>
+        <% if (product && product.image_url) { %>
         <div class="field">
-          <label>آدرس تصویر</label>
+          <label>عکس فعلی</label>
+          <img src="<%= product.image_url %>" style="width:120px;height:120px;object-fit:contain;border-radius:10px;background:#0e0e0e;">
+        </div>
+        <% } %>
+        <div class="field">
+          <label>آپلود عکس جدید از گوشی</label>
+          <input type="file" name="image_file" accept="image/*">
+        </div>
+        <div class="field">
+          <label>یا لینک عکس (اختیاری، اگر فایل آپلود نکنید)</label>
           <input type="text" name="image_url" value="<%= product ? product.image_url : '/img/placeholder.svg' %>">
         </div>
         <% if (product) { %>

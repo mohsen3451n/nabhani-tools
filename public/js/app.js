@@ -7,3 +7,19 @@ document.addEventListener('submit', function (e) {
     }
   }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+  const btn = document.getElementById('siteMenuBtn');
+  const menu = document.getElementById('siteMenu');
+  const overlay = document.getElementById('siteMenuOverlay');
+  if (btn && menu && overlay) {
+    btn.addEventListener('click', function () {
+      menu.classList.add('open');
+      overlay.classList.add('open');
+    });
+    overlay.addEventListener('click', function () {
+      menu.classList.remove('open');
+      overlay.classList.remove('open');
+    });
+  }
+});

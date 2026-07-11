@@ -1,18 +1,45 @@
 const express = require('express');
 const router = express.Router();
 const sanitizeHtml = require('sanitize-html');
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 const db = require('../db');
 const { requestOtp, verifyOtp } = require('../services/otp');
 const { signAdminToken, setAdminCookie, clearAdminCookie, requireAdmin } = require('../middleware/auth');
 const { otpRequestLimiter, otpVerifyLimiter } = require('../middleware/security');
+const { getAllSettings, setSetting } = require('../services/settings');
 
 function slugify(str) {
   return str.trim().replace(/\s+/g, '-') + '-' + Math.random().toString(36).slice(2, 7);
 }
 function clean(str) { return sanitizeHtml(String(str || ''), { allowedTags: [], allowedAttributes: {} }); }
 
+// ---- آپلود عکس محصول ----
+// نکته: روی Railway پلن رایگان فضای دیسک بین دیپلوی‌ها پاک می‌شود، پس این روش فقط
+// برای تست مناسب است. برای سایت نهایی بهتر است از یک سرویس ذخیره‌سازی ابری استفاده شود.
+const uploadDir = path.join(__dirname, '..', '..', 'public', 'uploads', 'products');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname || '').toLowerCase() || '.jpg';
+    cb(null, `product-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
+  },
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 4 * 1024 * 1024 }, // حداکثر ۴ مگابایت
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith('image/')) return cb(new Error('فقط فایل تصویر مجاز است'));
+    cb(null, true);
+  },
+});
+
 const ADMIN_PATH = process.env.ADMIN_PANEL_PATH || '/nb-admin-x7q2';
 
+// در دسترس همه ویوهای ادمین قرار می‌گیرد تا لینک‌ها همیشه درست ساخته شوند
 router.use((req, res, next) => {
   res.locals.adminBase = ADMIN_PATH;
   next();
@@ -26,8 +53,9 @@ router.get('/login', (req, res) => {
 
 router.post('/login/request-code', otpRequestLimiter, async (req, res) => {
   const phone = String(req.body.phone || '').trim();
-  const existing = db.prepare(`SELECT * FROM users WHERE phone=? AND role='admin'`).get(phone);
+  const existing = db.prepare(`SELECT * FROM users WHERE phone=? AND is_admin=1`).get(phone);
   if (!existing) {
+    // به عمد پیام مبهم می‌دهیم تا شماره‌های ادمین قابل حدس زدن نباشند
     return res.render('admin/login', { error: 'اگر این شماره مدیر باشد، کد ارسال می‌شود. اگر پیامکی نرسید، شماره را بررسی کنید.' });
   }
   try {
@@ -44,7 +72,7 @@ router.post('/login/verify-code', otpVerifyLimiter, (req, res) => {
   const result = verifyOtp(phone, 'admin', code);
   if (!result.ok) return res.render('admin/login-otp', { phone, error: result.reason });
 
-  const user = db.prepare(`SELECT * FROM users WHERE phone=? AND role='admin'`).get(phone);
+  const user = db.prepare(`SELECT * FROM users WHERE phone=? AND is_admin=1`).get(phone);
   if (!user) return res.render('admin/login', { error: 'دسترسی مدیر یافت نشد' });
 
   const token = signAdminToken(user);
@@ -85,14 +113,15 @@ router.get('/products/new', (req, res) => {
   res.render('admin/product-form', { product: null, categories });
 });
 
-router.post('/products/new', (req, res) => {
+router.post('/products/new', upload.single('image_file'), (req, res) => {
   const { name, category_id, description, price, stock, image_url } = req.body;
   if (!name || !price) return res.status(400).render('error', { message: 'نام و قیمت الزامی است' });
   const catId = category_id ? parseInt(category_id, 10) : null;
+  const finalImage = req.file ? `/uploads/products/${req.file.filename}` : (clean(image_url) || '/img/placeholder.svg');
   db.prepare(`
     INSERT INTO products (category_id, name, slug, description, price, stock, image_url, active)
     VALUES (?, ?, ?, ?, ?, ?, ?, 1)
-  `).run(catId, clean(name), slugify(name), clean(description), parseInt(price, 10), parseInt(stock || 0, 10), clean(image_url) || '/img/placeholder.svg');
+  `).run(catId, clean(name), slugify(name), clean(description), parseInt(price, 10), parseInt(stock || 0, 10), finalImage);
   res.redirect(`${ADMIN_PATH}/products`);
 });
 
@@ -103,13 +132,14 @@ router.get('/products/:id/edit', (req, res) => {
   res.render('admin/product-form', { product, categories });
 });
 
-router.post('/products/:id/edit', (req, res) => {
+router.post('/products/:id/edit', upload.single('image_file'), (req, res) => {
   const { name, category_id, description, price, stock, image_url, active } = req.body;
   const catId = category_id ? parseInt(category_id, 10) : null;
+  const finalImage = req.file ? `/uploads/products/${req.file.filename}` : clean(image_url);
   db.prepare(`
     UPDATE products SET category_id=?, name=?, description=?, price=?, stock=?, image_url=?, active=?
     WHERE id=?
-  `).run(catId, clean(name), clean(description), parseInt(price, 10), parseInt(stock || 0, 10), clean(image_url), active ? 1 : 0, req.params.id);
+  `).run(catId, clean(name), clean(description), parseInt(price, 10), parseInt(stock || 0, 10), finalImage, active ? 1 : 0, req.params.id);
   res.redirect(`${ADMIN_PATH}/products`);
 });
 
@@ -156,6 +186,7 @@ router.get('/orders/:id', (req, res) => {
   res.render('admin/order-detail', { order, items });
 });
 
+// تایید دستی سفارش‌های کارت‌به‌کارت توسط ادمین (بعد از بررسی واریزی)
 router.post('/orders/:id/confirm', (req, res) => {
   db.prepare(`UPDATE orders SET status='paid', updated_at=datetime('now') WHERE id=?`).run(req.params.id);
   res.redirect(`${ADMIN_PATH}/orders/${req.params.id}`);
@@ -170,6 +201,23 @@ router.post('/orders/:id/reject', (req, res) => {
   }
   db.prepare(`UPDATE orders SET status='failed', updated_at=datetime('now') WHERE id=?`).run(req.params.id);
   res.redirect(`${ADMIN_PATH}/orders/${req.params.id}`);
+});
+
+// ---- تنظیمات فروشگاه (شماره تماس، اینستاگرام، شماره کارت) ----
+const SETTINGS_KEYS = ['shop_phone', 'shop_instagram', 'shop_card_number', 'shop_card_owner'];
+
+router.get('/settings', (req, res) => {
+  const settings = getAllSettings(SETTINGS_KEYS);
+  res.render('admin/settings', { settings, saved: false });
+});
+
+router.post('/settings', (req, res) => {
+  setSetting('shop_phone', clean(req.body.shop_phone));
+  setSetting('shop_instagram', clean(req.body.shop_instagram));
+  setSetting('shop_card_number', clean(req.body.shop_card_number));
+  setSetting('shop_card_owner', clean(req.body.shop_card_owner));
+  const settings = getAllSettings(SETTINGS_KEYS);
+  res.render('admin/settings', { settings, saved: true });
 });
 
 module.exports = router;

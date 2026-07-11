@@ -6,6 +6,7 @@ const session = require('express-session');
 
 const { helmetConfig, globalLimiter, adminLimiter, setupLimiter, csrfProtection } = require('./middleware/security');
 const { loadCustomer, loadAdmin } = require('./middleware/auth');
+const { getSetting } = require('./services/settings');
 
 const authRoutes = require('./routes/auth.routes');
 const shopRoutes = require('./routes/shop.routes');
@@ -45,8 +46,8 @@ app.use(csrfProtection);
 app.use(loadCustomer);
 app.use((req, res, next) => {
   res.locals.adminPanelPath = ADMIN_PATH;
-  res.locals.shopPhone = process.env.SHOP_PHONE || '';
-  res.locals.shopInstagram = process.env.SHOP_INSTAGRAM || '';
+  res.locals.shopPhone = getSetting('shop_phone', process.env.SHOP_PHONE || '');
+  res.locals.shopInstagram = getSetting('shop_instagram', process.env.SHOP_INSTAGRAM || '');
   next();
 });
 app.use('/', authRoutes);

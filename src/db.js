@@ -81,6 +81,26 @@ CREATE TABLE IF NOT EXISTS audit_log (
   ip TEXT,
   created_at TEXT DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT
+);
 `);
+
+// یک کاربر (با یک شماره موبایل) می‌تواند هم مشتری باشد هم دسترسی ادمین داشته باشد.
+// این ستون جدا از role است تا یک شماره بتواند همزمان خرید کند و به پنل مدیریت هم دسترسی داشته باشد.
+try {
+  db.exec(`ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0`);
+} catch (e) {
+  // ستون از قبل وجود دارد، مشکلی نیست
+}
+
+// کاربرانی که قبلا با روش قدیمی (role='admin') ادمین شده بودند را به ستون جدید منتقل می‌کند
+try {
+  db.prepare(`UPDATE users SET is_admin=1 WHERE role='admin' AND is_admin=0`).run();
+} catch (e) {
+  // مشکلی نیست
+}
 
 module.exports = db;

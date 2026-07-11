@@ -183,4 +183,44 @@ th { color: var(--text-dim); font-weight: normal; }
 .stat-card .num { font-size: 22px; font-weight: bold; color: var(--green); }
 .stat-card .label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
 
+.topbar-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.menu-btn {
+  background: rgba(0,0,0,0.35);
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  line-height: 1;
+}
+.site-menu-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 999;
+}
+.site-menu-overlay.open { display: block; }
+.site-menu {
+  position: fixed;
+  top: 0; right: -280px;
+  width: 260px; height: 100%;
+  background: var(--card);
+  border-left: 1px solid var(--border);
+  z-index: 1000;
+  transition: right .25s ease;
+  padding-top: 24px;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.5);
+}
+.site-menu.open { right: 0; }
+.site-menu-title { padding: 10px 20px 16px; font-weight: bold; color: var(--green); border-bottom: 1px solid var(--border); }
+.site-menu-item {
+  display: block;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  color: #fff;
+  font-size: 14px;
+}
+.site-menu-item.admin { color: var(--text-dim); }
+
 .otp-note { font-size: 12px; color: var(--text-dim); margin-top: 10px; text-align: center; }

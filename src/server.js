@@ -43,6 +43,12 @@ app.use(csrfProtection);
 
 // ---------- مسیر مشتری ----------
 app.use(loadCustomer);
+app.use((req, res, next) => {
+  res.locals.adminPanelPath = ADMIN_PATH;
+  res.locals.shopPhone = process.env.SHOP_PHONE || '';
+  res.locals.shopInstagram = process.env.SHOP_INSTAGRAM || '';
+  next();
+});
 app.use('/', authRoutes);
 app.use('/', shopRoutes);
 app.use('/', paymentRoutes);
@@ -57,7 +63,7 @@ app.use((req, res) => {
   res.status(404).render('error', { message: 'صفحه یافت نشد' });
 });
 
-// ---------- خطای عمومی ----------
+// ---------- خطای عمومی (هیچ‌وقت جزئیات فنی/استک به کاربر نمایش داده نمی‌شود) ----------
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).render('error', { message: 'خطایی رخ داد، لطفا دوباره تلاش کنید' });

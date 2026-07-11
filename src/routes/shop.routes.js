@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const { requireCustomer } = require('../middleware/auth');
+const { getSetting } = require('../services/settings');
 
 function getCart(req) {
   if (!req.session.cart) req.session.cart = {};
@@ -93,7 +94,10 @@ router.get('/checkout', requireCustomer, (req, res) => {
   if (items.length === 0) return res.redirect('/cart');
   res.render('checkout', {
     items, total,
-    shopCard: { number: process.env.SHOP_CARD_NUMBER, owner: process.env.SHOP_CARD_OWNER },
+    shopCard: {
+      number: getSetting('shop_card_number', process.env.SHOP_CARD_NUMBER || ''),
+      owner: getSetting('shop_card_owner', process.env.SHOP_CARD_OWNER || ''),
+    },
     error: null,
   });
 });

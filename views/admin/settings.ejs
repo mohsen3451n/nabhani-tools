@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head><%- include('../partials/head', { title: 'تنظیمات فروشگاه | پنل مدیریت' }) %></head>
+<body>
+  <%- include('../partials/admin-topbar') %>
+  <div class="container">
+    <% if (saved) { %>
+      <div class="alert info">تنظیمات با موفقیت ذخیره شد.</div>
+    <% } %>
+
+    <div class="card">
+      <div class="section-title" style="margin-top:0;">اطلاعات تماس (در منوی سایت نمایش داده می‌شود)</div>
+      <form action="<%= adminBase %>/settings" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="field">
+          <label>شماره تماس فروشگاه</label>
+          <input type="text" name="shop_phone" value="<%= settings.shop_phone %>" placeholder="09120000000">
+        </div>
+
+        <div class="field">
+          <label>لینک صفحه اینستاگرام</label>
+          <input type="text" name="shop_instagram" value="<%= settings.shop_instagram %>" placeholder="https://instagram.com/your_page">
+        </div>
+
+        <div class="section-title" style="margin-top:24px;">اطلاعات کارت (برای پرداخت کارت‌به‌کارت)</div>
+
+        <div class="field">
+          <label>شماره کارت فروشگاه</label>
+          <input type="text" name="shop_card_number" value="<%= settings.shop_card_number %>" placeholder="6037-9975-XXXX-XXXX">
+        </div>
+
+        <div class="field">
+          <label>نام صاحب کارت</label>
+          <input type="text" name="shop_card_owner" value="<%= settings.shop_card_owner %>" placeholder="نام و نام‌خانوادگی">
+        </div>
+
+        <button class="btn" type="submit">ذخیره تنظیمات</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

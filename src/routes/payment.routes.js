@@ -1,9 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const db = require('../db');
 const { requireCustomer } = require('../middleware/auth');
 const { getCart, cartDetails } = require('./shop.routes');
 const paymentService = require('../services/payment');
+const { getSetting } = require('../services/settings');
+
+function getShopCard() {
+  return {
+    number: getSetting('shop_card_number', process.env.SHOP_CARD_NUMBER || ''),
+    owner: getSetting('shop_card_owner', process.env.SHOP_CARD_OWNER || ''),
+  };
+}
 
 function createOrder(userId, items, total, paymentMethod, extra = {}) {
   const info = db.prepare(`
@@ -53,7 +62,7 @@ router.get('/payment/card2card/:orderId', requireCustomer, (req, res) => {
   if (!order) return res.status(404).render('error', { message: 'سفارش یافت نشد' });
   res.render('card2card', {
     order,
-    shopCard: { number: process.env.SHOP_CARD_NUMBER, owner: process.env.SHOP_CARD_OWNER },
+    shopCard: getShopCard(),
   });
 });
 
@@ -65,7 +74,7 @@ router.post('/payment/card2card/:orderId/submit', requireCustomer, (req, res) =>
   if (!trackingCode) {
     return res.render('card2card', {
       order,
-      shopCard: { number: process.env.SHOP_CARD_NUMBER, owner: process.env.SHOP_CARD_OWNER },
+      shopCard: getShopCard(),
       error: 'کد رهگیری واریز را وارد کنید',
     });
   }

@@ -1,16 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const crypto = require('crypto');
 const db = require('../db');
 const { requireCustomer } = require('../middleware/auth');
 const { getCart, cartDetails } = require('./shop.routes');
 const paymentService = require('../services/payment');
 const { getSetting } = require('../services/settings');
+const { deductStockForOrder, restockOrder } = require('../services/inventory');
 
 function getShopCard() {
   return {
     number: getSetting('shop_card_number', process.env.SHOP_CARD_NUMBER || ''),
     owner: getSetting('shop_card_owner', process.env.SHOP_CARD_OWNER || ''),
+  };
+}
+
+function getGatewayConfig() {
+  return {
+    merchantId: getSetting('zarinpal_merchant_id', process.env.ZARINPAL_MERCHANT_ID || ''),
+    sandbox: getSetting('zarinpal_sandbox', process.env.ZARINPAL_SANDBOX || 'true') === 'true',
   };
 }
 
@@ -27,13 +34,6 @@ function createOrder(userId, items, total, paymentMethod, extra = {}) {
     insertItem.run(orderId, it.product.id, it.product.name, it.qty, it.product.price);
   }
   return orderId;
-}
-
-// موجودی فقط زمانی کم می‌شود که پرداخت قطعی شده باشد (نه در لحظه ثبت سفارش)
-function deductStockForOrder(orderId) {
-  const items = db.prepare('SELECT product_id, qty FROM order_items WHERE order_id=?').all(orderId);
-  const update = db.prepare('UPDATE products SET stock = MAX(0, stock - ?) WHERE id=?');
-  for (const it of items) update.run(it.qty, it.product_id);
 }
 
 // انتخاب روش پرداخت و ثبت سفارش اولیه
@@ -63,6 +63,7 @@ router.get('/payment/card2card/:orderId', requireCustomer, (req, res) => {
   res.render('card2card', {
     order,
     shopCard: getShopCard(),
+    error: null,
   });
 });
 
@@ -93,19 +94,22 @@ router.get('/payment/gateway/:orderId/start', requireCustomer, async (req, res) 
   if (!order) return res.status(404).render('error', { message: 'سفارش یافت نشد' });
 
   try {
+    const { merchantId, sandbox } = getGatewayConfig();
     const callbackUrl = `${process.env.BASE_URL}/payment/gateway/${order.id}/callback`;
     const { authority, url } = await paymentService.requestPayment({
       amountToman: order.total,
       description: `پرداخت سفارش شماره ${order.id} - ابزار نبهانی`,
       callbackUrl,
       mobile: res.locals.customer.phone,
+      merchantId,
+      sandbox,
     });
     db.prepare(`UPDATE orders SET gateway_authority=?, updated_at=datetime('now') WHERE id=?`).run(authority, order.id);
     res.redirect(url);
   } catch (e) {
     if (e.code === 'GATEWAY_NOT_CONFIGURED') {
       return res.render('error', {
-        message: 'درگاه بانکی هنوز فعال نشده است. لطفا از روش «کارت به کارت» استفاده کنید یا با فروشگاه تماس بگیرید.',
+        message: 'درگاه بانکی هنوز فعال نشده است (شناسه پذیرندگی ثبت نشده). لطفا از روش «کارت به کارت» استفاده کنید یا با فروشگاه تماس بگیرید.',
       });
     }
     return res.render('error', { message: 'خطا در اتصال به درگاه بانکی، لطفا دوباره تلاش کنید' });
@@ -122,7 +126,8 @@ router.get('/payment/gateway/:orderId/callback', requireCustomer, async (req, re
   }
 
   try {
-    const result = await paymentService.verifyPayment({ amountToman: order.total, authority: order.gateway_authority });
+    const { merchantId, sandbox } = getGatewayConfig();
+    const result = await paymentService.verifyPayment({ amountToman: order.total, authority: order.gateway_authority, merchantId, sandbox });
     if (result.ok) {
       db.prepare(`UPDATE orders SET status='paid', gateway_ref_id=?, updated_at=datetime('now') WHERE id=?`).run(String(result.refId), order.id);
       deductStockForOrder(order.id);
@@ -134,6 +139,24 @@ router.get('/payment/gateway/:orderId/callback', requireCustomer, async (req, re
     db.prepare(`UPDATE orders SET status='failed', updated_at=datetime('now') WHERE id=?`).run(order.id);
     return res.redirect(`/order/${order.id}/failed`);
   }
+});
+
+// ---------- لغو سفارش توسط مشتری ----------
+// فقط تا وقتی سفارش نهایی نشده (در انتظار پرداخت یا در انتظار تایید واریز) قابل لغو است
+router.post('/order/:id/cancel', requireCustomer, (req, res) => {
+  const order = db.prepare('SELECT * FROM orders WHERE id=? AND user_id=?').get(req.params.id, res.locals.customer.id);
+  if (!order) return res.status(404).render('error', { message: 'سفارش یافت نشد' });
+
+  if (!['pending', 'awaiting_verification'].includes(order.status)) {
+    return res.status(400).render('error', { message: 'این سفارش دیگر قابل لغو نیست.' });
+  }
+
+  if (order.status === 'awaiting_verification') {
+    restockOrder(order.id); // موجودی که کسر شده بود برمی‌گردد
+  }
+
+  db.prepare(`UPDATE orders SET status='cancelled', updated_at=datetime('now') WHERE id=?`).run(order.id);
+  res.redirect('/orders');
 });
 
 // ---------- نتیجه سفارش ----------

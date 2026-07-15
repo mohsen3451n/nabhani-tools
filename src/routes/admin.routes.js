@@ -9,6 +9,7 @@ const { requestOtp, verifyOtp } = require('../services/otp');
 const { signAdminToken, setAdminCookie, clearAdminCookie, requireAdmin } = require('../middleware/auth');
 const { otpRequestLimiter, otpVerifyLimiter } = require('../middleware/security');
 const { getAllSettings, setSetting } = require('../services/settings');
+const { restockOrder } = require('../services/inventory');
 
 function slugify(str) {
   return str.trim().replace(/\s+/g, '-') + '-' + Math.random().toString(36).slice(2, 7);
@@ -208,17 +209,15 @@ router.post('/orders/:id/confirm', (req, res) => {
 
 router.post('/orders/:id/reject', (req, res) => {
   const order = db.prepare('SELECT * FROM orders WHERE id=?').get(req.params.id);
-  if (order && order.status !== 'failed' && order.status !== 'cancelled') {
-    const items = db.prepare('SELECT product_id, qty FROM order_items WHERE order_id=?').all(order.id);
-    const restock = db.prepare('UPDATE products SET stock = stock + ? WHERE id=?');
-    for (const it of items) restock.run(it.qty, it.product_id);
+  if (order && ['awaiting_verification', 'paid'].includes(order.status)) {
+    restockOrder(order.id); // موجودی که کسر شده بود برمی‌گردد
   }
-  db.prepare(`UPDATE orders SET status='failed', updated_at=datetime('now') WHERE id=?`).run(req.params.id);
+  db.prepare(`UPDATE orders SET status='cancelled', updated_at=datetime('now') WHERE id=?`).run(req.params.id);
   res.redirect(`${ADMIN_PATH}/orders/${req.params.id}`);
 });
 
 // ---- تنظیمات فروشگاه (شماره تماس، اینستاگرام، شماره کارت) ----
-const SETTINGS_KEYS = ['shop_phone', 'shop_instagram', 'shop_card_number', 'shop_card_owner'];
+const SETTINGS_KEYS = ['shop_phone', 'shop_instagram', 'shop_card_number', 'shop_card_owner', 'zarinpal_merchant_id', 'zarinpal_sandbox'];
 
 router.get('/settings', (req, res) => {
   const settings = getAllSettings(SETTINGS_KEYS);
@@ -230,6 +229,8 @@ router.post('/settings', (req, res) => {
   setSetting('shop_instagram', clean(req.body.shop_instagram));
   setSetting('shop_card_number', clean(req.body.shop_card_number));
   setSetting('shop_card_owner', clean(req.body.shop_card_owner));
+  setSetting('zarinpal_merchant_id', clean(req.body.zarinpal_merchant_id));
+  setSetting('zarinpal_sandbox', req.body.zarinpal_sandbox ? 'true' : 'false');
   const settings = getAllSettings(SETTINGS_KEYS);
   res.render('admin/settings', { settings, saved: true });
 });

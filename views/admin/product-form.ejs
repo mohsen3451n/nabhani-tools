@@ -5,7 +5,7 @@
   <%- include('../partials/admin-topbar') %>
   <div class="container">
     <div class="card">
-      <form action="<%= adminBase %>/products/<%= product ? (product.id + '/edit') : 'new' %>" method="POST" enctype="multipart/form-data">
+      <form action="<%= adminBase %>/products/<%= product ? (product.id + '/edit') : 'new' %>?_csrf=<%= csrfToken %>" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="field">
           <label>نام کالا</label>

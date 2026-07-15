@@ -15,7 +15,20 @@ const adminRoutes = require('./routes/admin.routes');
 const setupRoutes = require('./routes/setup.routes');
 
 const app = express();
-const ADMIN_PATH = process.env.ADMIN_PANEL_PATH || '/nb-admin-x7q2';
+
+// محافظ در برابر خطاهای پیش‌بینی‌نشده: به‌جای خاموش شدن کل سرور، فقط خطا لاگ می‌شود
+process.on('unhandledRejection', (reason) => {
+  console.error('خطای مدیریت‌نشده (Promise):', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('خطای مدیریت‌نشده (Exception):', err);
+});
+
+function normalizeAdminPath(p) {
+  const v = (p || '/nb-admin-x7q2').trim();
+  return v.startsWith('/') ? v : '/' + v;
+}
+const ADMIN_PATH = normalizeAdminPath(process.env.ADMIN_PANEL_PATH);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '..', 'views'));

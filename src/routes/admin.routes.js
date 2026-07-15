@@ -37,6 +37,20 @@ const upload = multer({
   },
 });
 
+// این تابع دور آپلود می‌پیچد تا اگر خطایی رخ داد (حجم زیاد، فرمت نامناسب و...)
+// فقط یک پیام خطا نمایش داده شود، نه اینکه کل سرور از کار بیفتد
+function safeUpload(req, res, next) {
+  upload.single('image_file')(req, res, function (err) {
+    if (err) {
+      console.error('خطای آپلود عکس:', err.message);
+      return res.status(400).render('error', {
+        message: 'خطا در آپلود عکس: ' + (err.message || 'فایل نامعتبر است') + '. لطفا دوباره تلاش کنید یا از فیلد لینک عکس استفاده کنید.',
+      });
+    }
+    next();
+  });
+}
+
 const ADMIN_PATH = process.env.ADMIN_PANEL_PATH || '/nb-admin-x7q2';
 
 // در دسترس همه ویوهای ادمین قرار می‌گیرد تا لینک‌ها همیشه درست ساخته شوند
@@ -113,7 +127,7 @@ router.get('/products/new', (req, res) => {
   res.render('admin/product-form', { product: null, categories });
 });
 
-router.post('/products/new', upload.single('image_file'), (req, res) => {
+router.post('/products/new', safeUpload, (req, res) => {
   const { name, category_id, description, price, stock, image_url } = req.body;
   if (!name || !price) return res.status(400).render('error', { message: 'نام و قیمت الزامی است' });
   const catId = category_id ? parseInt(category_id, 10) : null;
@@ -132,7 +146,7 @@ router.get('/products/:id/edit', (req, res) => {
   res.render('admin/product-form', { product, categories });
 });
 
-router.post('/products/:id/edit', upload.single('image_file'), (req, res) => {
+router.post('/products/:id/edit', safeUpload, (req, res) => {
   const { name, category_id, description, price, stock, image_url, active } = req.body;
   const catId = category_id ? parseInt(category_id, 10) : null;
   const finalImage = req.file ? `/uploads/products/${req.file.filename}` : clean(image_url);

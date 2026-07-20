@@ -17,9 +17,9 @@ function slugify(str) {
 function clean(str) { return sanitizeHtml(String(str || ''), { allowedTags: [], allowedAttributes: {} }); }
 
 // ---- آپلود عکس محصول ----
-// نکته: روی Railway پلن رایگان فضای دیسک بین دیپلوی‌ها پاک می‌شود، پس این روش فقط
-// برای تست مناسب است. برای سایت نهایی بهتر است از یک سرویس ذخیره‌سازی ابری استفاده شود.
-const uploadDir = path.join(__dirname, '..', '..', 'public', 'uploads', 'products');
+// نکته: این پوشه داخل data/ قرار دارد تا با همان Volume دیتابیس روی Railway
+// دائمی (persistent) شود؛ در غیر این صورت با هر دیپلوی جدید پاک می‌شد.
+const uploadDir = path.join(__dirname, '..', '..', 'data', 'uploads', 'products');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.diskStorage({

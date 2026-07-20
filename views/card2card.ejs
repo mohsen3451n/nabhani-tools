@@ -6,12 +6,48 @@
   <div class="container">
     <div class="section-title">پرداخت کارت به کارت</div>
 
+    <% 
+      const rawNum = String(shopCard.number || '');
+      const digitsOnly = rawNum.replace(/[^0-9]/g, '');
+      const grouped = digitsOnly.length > 0 ? digitsOnly.replace(/(.{4})/g, '$1 ').trim() : rawNum;
+    %>
+
+    <div class="bank-card">
+      <div class="bank-card-top">
+        <span class="bank-card-bank">🏪 ابزار نبهانی</span>
+        <span class="bank-card-chip">▮▮</span>
+      </div>
+      <div class="bank-card-number"><%= grouped %></div>
+      <div class="bank-card-bottom">
+        <div>
+          <div class="bank-card-label">صاحب کارت</div>
+          <div class="bank-card-owner"><%= shopCard.owner %></div>
+        </div>
+        <div class="bank-card-logo">IR</div>
+      </div>
+    </div>
+
+    <button type="button" class="btn secondary" id="copyCardBtn" data-copy="<%= digitsOnly %>">📋 کپی شماره کارت</button>
+
+    <div class="card" style="margin-top:16px;text-align:center;">
+      <div style="color:var(--text-dim);font-size:13px;">مبلغ قابل پرداخت</div>
+      <div class="price" style="font-size:24px;margin-top:6px;"><%= order.total.toLocaleString('fa-IR') %> تومان</div>
+      <div style="color:var(--text-dim);font-size:12px;margin-top:6px;">سفارش شماره #<%= order.id %></div>
+    </div>
+
     <div class="card">
-      <p>لطفا مبلغ زیر را به شماره کارت فروشگاه واریز کنید:</p>
-      <div class="card-number"><%= shopCard.number %></div>
-      <p style="text-align:center;color:var(--text-dim);">به نام: <%= shopCard.owner %></p>
-      <div style="text-align:center;font-size:18px;margin-top:10px;">
-        مبلغ قابل پرداخت: <strong class="price"><%= order.total.toLocaleString('fa-IR') %> تومان</strong>
+      <div class="section-title" style="margin-top:0;font-size:15px;">راهنمای پرداخت</div>
+      <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;">
+        <span style="background:var(--green);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;">۱</span>
+        <span style="font-size:14px;">شماره کارت بالا را کپی کنید (یا با انگشت نگه دارید و کپی کنید)</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;">
+        <span style="background:var(--green);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;">۲</span>
+        <span style="font-size:14px;">از طریق اپلیکیشن بانک خودتان، دقیقاً مبلغ بالا را به این شماره کارت واریز کنید</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <span style="background:var(--green);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;">۳</span>
+        <span style="font-size:14px;">کد رهگیری (شماره پیگیری) که بانک بعد از واریز به شما می‌دهد را پایین وارد کنید</span>
       </div>
     </div>
 

@@ -13,6 +13,12 @@
         </div>
         <div style="margin-top:6px;color:var(--text-dim);"><%= o.created_at %></div>
         <div class="price" style="margin-top:6px;"><%= o.total.toLocaleString('fa-IR') %> تومان</div>
+        <% if (['pending', 'awaiting_verification'].includes(o.status)) { %>
+          <form action="/order/<%= o.id %>/cancel" method="POST" data-confirm="این سفارش لغو شود؟" style="margin-top:10px;">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn danger small" type="submit">لغو سفارش</button>
+          </form>
+        <% } %>
       </div>
     <% }) %>
     <% if (orders.length === 0) { %><p>هنوز سفارشی ثبت نکرده‌اید.</p><% } %>

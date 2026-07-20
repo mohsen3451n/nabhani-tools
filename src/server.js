@@ -40,6 +40,8 @@ app.use(express.urlencoded({ extended: true, limit: '200kb' }));
 app.use(express.json({ limit: '200kb' }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '..', 'public'), { maxAge: '1d' }));
+// عکس‌های آپلودشده محصولات داخل data/uploads هستند تا با Volume دائمی بمانند
+app.use('/uploads', express.static(path.join(__dirname, '..', 'data', 'uploads')));
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev_only_secret_change_me',

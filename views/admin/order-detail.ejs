@@ -32,11 +32,16 @@
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button class="btn" type="submit">تایید واریزی و تکمیل سفارش</button>
       </form>
-      <form action="<%= adminBase %>/orders/<%= order.id %>/reject" method="POST" style="flex:1;">
+      <form action="<%= adminBase %>/orders/<%= order.id %>/reject" method="POST" style="flex:1;" data-confirm="سفارش لغو شود؟">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <button class="btn danger" type="submit">رد سفارش</button>
+        <button class="btn danger" type="submit">لغو سفارش</button>
       </form>
     </div>
+    <% } else if (['pending', 'paid'].includes(order.status)) { %>
+    <form action="<%= adminBase %>/orders/<%= order.id %>/reject" method="POST" data-confirm="سفارش لغو شود؟">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn danger" type="submit">لغو سفارش</button>
+    </form>
     <% } %>
   </div>
 </body>

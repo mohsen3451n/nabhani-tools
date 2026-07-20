@@ -22,4 +22,23 @@ document.addEventListener('DOMContentLoaded', function () {
       overlay.classList.remove('open');
     });
   }
+
+  const copyBtn = document.getElementById('copyCardBtn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      const text = copyBtn.getAttribute('data-copy') || '';
+      const done = () => {
+        const original = copyBtn.textContent;
+        copyBtn.textContent = '✅ کپی شد';
+        setTimeout(() => { copyBtn.textContent = original; }, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => {
+          window.prompt('شماره کارت را کپی کنید:', text);
+        });
+      } else {
+        window.prompt('شماره کارت را کپی کنید:', text);
+      }
+    });
+  }
 });

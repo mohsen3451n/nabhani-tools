@@ -24,6 +24,13 @@
 
     <a class="btn secondary" href="/orders">مشاهده سفارش‌های من</a>
     <a class="btn" href="/">بازگشت به فروشگاه</a>
+
+    <% if (['pending', 'awaiting_verification'].includes(order.status)) { %>
+      <form action="/order/<%= order.id %>/cancel" method="POST" data-confirm="این سفارش لغو شود؟" style="margin-top:12px;">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn danger" type="submit">لغو سفارش</button>
+      </form>
+    <% } %>
   </div>
   <%- include('partials/bottom-nav') %>
 </body>

@@ -38,6 +38,37 @@
         <button class="btn" type="submit">ذخیره تنظیمات</button>
       </form>
     </div>
+
+    <div class="card">
+      <div class="section-title" style="margin-top:0;">درگاه بانکی آنلاین (زرین‌پال)</div>
+      <p style="color:var(--text-dim);font-size:13px;">
+        برای فعال شدن پرداخت آنلاین با کارت‌های شتاب، اول باید در
+        <a href="https://www.zarinpal.com" target="_blank" rel="noopener" style="color:var(--green);">zarinpal.com</a>
+        به‌عنوان «پذیرنده» ثبت‌نام کنید (نیاز به تایید هویت کسب‌وکار دارد) و «شناسه پذیرندگی» بگیرید.
+        بدون این شناسه، این بخش کار نمی‌کند و مشتری‌ها باید از روش کارت‌به‌کارت استفاده کنند.
+      </p>
+      <form action="<%= adminBase %>/settings" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="shop_phone" value="<%= settings.shop_phone %>">
+        <input type="hidden" name="shop_instagram" value="<%= settings.shop_instagram %>">
+        <input type="hidden" name="shop_card_number" value="<%= settings.shop_card_number %>">
+        <input type="hidden" name="shop_card_owner" value="<%= settings.shop_card_owner %>">
+
+        <div class="field">
+          <label>شناسه پذیرندگی زرین‌پال (Merchant ID)</label>
+          <input type="text" name="zarinpal_merchant_id" value="<%= settings.zarinpal_merchant_id %>" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+        </div>
+
+        <div class="field">
+          <label style="display:flex;align-items:center;gap:8px;color:#fff;">
+            <input type="checkbox" name="zarinpal_sandbox" value="1" <%= settings.zarinpal_sandbox !== 'false' ? 'checked' : '' %> style="width:auto;">
+            حالت آزمایشی (Sandbox) — قبل از فعال کردن سایت واقعی خاموشش کنید
+          </label>
+        </div>
+
+        <button class="btn" type="submit">ذخیره تنظیمات درگاه</button>
+      </form>
+    </div>
   </div>
 </body>
 </html>

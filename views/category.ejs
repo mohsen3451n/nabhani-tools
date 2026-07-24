@@ -14,9 +14,7 @@
           <div class="stock"><%= p.stock > 0 ? 'موجود' : 'ناموجود' %></div>
         </a>
       <% }) %>
-      <% if (products.length === 0) { %>
-        <p>کالایی در این دسته ثبت نشده است.</p>
-      <% } %>
+      <% if (products.length === 0) { %><p>کالایی در این دسته ثبت نشده است.</p><% } %>
     </div>
   </div>
   <%- include('partials/bottom-nav') %>

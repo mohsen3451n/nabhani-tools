@@ -5,11 +5,7 @@
   <%- include('partials/topbar') %>
   <div class="container">
     <div class="section-title">سبد خرید</div>
-
-    <% if (items.length === 0) { %>
-      <p>سبد خرید شما خالی است.</p>
-    <% } %>
-
+    <% if (items.length === 0) { %><p>سبد خرید شما خالی است.</p><% } %>
     <% items.forEach(function(i) { %>
       <div class="card" style="display:flex;gap:12px;align-items:center;">
         <img src="<%= i.product.image_url %>" style="width:70px;height:70px;object-fit:contain;border-radius:8px;background:#0e0e0e;">
@@ -30,14 +26,8 @@
         </form>
       </div>
     <% }) %>
-
     <% if (items.length > 0) { %>
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;font-size:16px;">
-          <span>جمع کل</span>
-          <strong class="price"><%= total.toLocaleString('fa-IR') %> تومان</strong>
-        </div>
-      </div>
+      <div class="card"><div style="display:flex;justify-content:space-between;font-size:16px;"><span>جمع کل</span><strong class="price"><%= total.toLocaleString('fa-IR') %> تومان</strong></div></div>
       <a class="btn" href="/checkout">ادامه و تسویه حساب</a>
     <% } %>
   </div>

@@ -16,48 +16,32 @@ const setupRoutes = require('./routes/setup.routes');
 
 const app = express();
 
-// محافظ در برابر خطاهای پیش‌بینی‌نشده: به‌جای خاموش شدن کل سرور، فقط خطا لاگ می‌شود
-process.on('unhandledRejection', (reason) => {
-  console.error('خطای مدیریت‌نشده (Promise):', reason);
-});
-process.on('uncaughtException', (err) => {
-  console.error('خطای مدیریت‌نشده (Exception):', err);
-});
+process.on('unhandledRejection', (reason) => { console.error('خطای مدیریت‌نشده (Promise):', reason); });
+process.on('uncaughtException', (err) => { console.error('خطای مدیریت‌نشده (Exception):', err); });
 
-function normalizeAdminPath(p) {
-  const v = (p || '/nb-admin-x7q2').trim();
-  return v.startsWith('/') ? v : '/' + v;
-}
+function normalizeAdminPath(p) { const v = (p || '/nb-admin-x7q2').trim(); return v.startsWith('/') ? v : '/' + v; }
 const ADMIN_PATH = normalizeAdminPath(process.env.ADMIN_PANEL_PATH);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '..', 'views'));
-app.set('trust proxy', 1); // لازم برای Railway/هر پراکسی دیگر تا secure cookie و IP درست کار کند
+app.set('trust proxy', 1);
 
 app.use(helmetConfig);
 app.use(globalLimiter);
-app.use(express.urlencoded({ extended: true, limit: '200kb' }));
-app.use(express.json({ limit: '200kb' }));
+app.use(express.urlencoded({ extended:true, limit:'200kb' }));
+app.use(express.json({ limit:'200kb' }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, '..', 'public'), { maxAge: '1d' }));
-// عکس‌های آپلودشده محصولات داخل data/uploads هستند تا با Volume دائمی بمانند
+app.use(express.static(path.join(__dirname, '..', 'public'), { maxAge:'1d' }));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'data', 'uploads')));
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev_only_secret_change_me',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 3600 * 1000,
-  },
+  resave: false, saveUninitialized: false,
+  cookie: { httpOnly:true, secure: process.env.NODE_ENV==='production', sameSite:'lax', maxAge: 7*24*3600*1000 },
 }));
 
 app.use(csrfProtection);
 
-// ---------- مسیر مشتری ----------
 app.use(loadCustomer);
 app.use((req, res, next) => {
   res.locals.adminPanelPath = ADMIN_PATH;
@@ -71,19 +55,10 @@ app.use('/', paymentRoutes);
 app.use('/setup-admin', setupLimiter);
 app.use('/', setupRoutes);
 
-// ---------- مسیر پنل مدیریت (کاملا جدا، آدرس مخفی + کوکی جدا) ----------
 app.use(ADMIN_PATH, adminLimiter, loadAdmin, adminRoutes);
 
-// ---------- 404 ----------
-app.use((req, res) => {
-  res.status(404).render('error', { message: 'صفحه یافت نشد' });
-});
-
-// ---------- خطای عمومی (هیچ‌وقت جزئیات فنی/استک به کاربر نمایش داده نمی‌شود) ----------
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).render('error', { message: 'خطایی رخ داد، لطفا دوباره تلاش کنید' });
-});
+app.use((req, res) => { res.status(404).render('error', { message:'صفحه یافت نشد' }); });
+app.use((err, req, res, next) => { console.error(err); res.status(500).render('error', { message:'خطایی رخ داد، لطفا دوباره تلاش کنید' }); });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

@@ -13,7 +13,7 @@ db.exec(`
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   phone TEXT UNIQUE NOT NULL,
-  role TEXT NOT NULL DEFAULT 'customer', -- 'customer' or 'admin'
+  role TEXT NOT NULL DEFAULT 'customer',
   name TEXT,
   created_at TEXT DEFAULT (datetime('now'))
 );
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS otp_codes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   phone TEXT NOT NULL,
-  purpose TEXT NOT NULL, -- 'customer' or 'admin'
+  purpose TEXT NOT NULL,
   code_hash TEXT NOT NULL,
   expires_at INTEGER NOT NULL,
   attempts INTEGER NOT NULL DEFAULT 0,
@@ -32,7 +32,8 @@ CREATE TABLE IF NOT EXISTS otp_codes (
 CREATE TABLE IF NOT EXISTS categories (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
-  slug TEXT UNIQUE NOT NULL
+  slug TEXT UNIQUE NOT NULL,
+  image_url TEXT
 );
 
 CREATE TABLE IF NOT EXISTS products (
@@ -41,7 +42,7 @@ CREATE TABLE IF NOT EXISTS products (
   name TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   description TEXT,
-  price INTEGER NOT NULL, -- تومان
+  price INTEGER NOT NULL,
   stock INTEGER NOT NULL DEFAULT 0,
   image_url TEXT,
   active INTEGER NOT NULL DEFAULT 1,
@@ -51,9 +52,9 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS orders (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL REFERENCES users(id),
-  status TEXT NOT NULL DEFAULT 'pending', -- pending, awaiting_verification, paid, failed, cancelled
+  status TEXT NOT NULL DEFAULT 'pending',
   total INTEGER NOT NULL,
-  payment_method TEXT, -- 'card2card' or 'gateway'
+  payment_method TEXT,
   tracking_code TEXT,
   gateway_authority TEXT,
   gateway_ref_id TEXT,
@@ -88,19 +89,8 @@ CREATE TABLE IF NOT EXISTS settings (
 );
 `);
 
-// یک کاربر (با یک شماره موبایل) می‌تواند هم مشتری باشد هم دسترسی ادمین داشته باشد.
-// این ستون جدا از role است تا یک شماره بتواند همزمان خرید کند و به پنل مدیریت هم دسترسی داشته باشد.
-try {
-  db.exec(`ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0`);
-} catch (e) {
-  // ستون از قبل وجود دارد، مشکلی نیست
-}
-
-// کاربرانی که قبلا با روش قدیمی (role='admin') ادمین شده بودند را به ستون جدید منتقل می‌کند
-try {
-  db.prepare(`UPDATE users SET is_admin=1 WHERE role='admin' AND is_admin=0`).run();
-} catch (e) {
-  // مشکلی نیست
-}
+try { db.exec("ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0"); } catch (e) {}
+try { db.prepare("UPDATE users SET is_admin=1 WHERE role='admin' AND is_admin=0").run(); } catch (e) {}
+try { db.exec("ALTER TABLE categories ADD COLUMN image_url TEXT"); } catch (e) {}
 
 module.exports = db;

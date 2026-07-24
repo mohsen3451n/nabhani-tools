@@ -11,17 +11,10 @@
       <tbody>
         <% products.forEach(function(p) { %>
         <tr>
-          <td><%= p.name %></td>
-          <td><%= p.category_name || '-' %></td>
-          <td><%= p.price.toLocaleString('fa-IR') %></td>
-          <td><%= p.stock %></td>
-          <td><%= p.active ? 'فعال' : 'غیرفعال' %></td>
+          <td><%= p.name %></td><td><%= p.category_name || '-' %></td><td><%= p.price.toLocaleString('fa-IR') %></td><td><%= p.stock %></td><td><%= p.active ? 'فعال' : 'غیرفعال' %></td>
           <td style="display:flex;gap:6px;">
             <a class="btn small secondary" href="<%= adminBase %>/products/<%= p.id %>/edit">ویرایش</a>
-            <form action="<%= adminBase %>/products/<%= p.id %>/delete" method="POST" data-confirm="حذف شود؟">
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <button class="btn small danger" type="submit">حذف</button>
-            </form>
+            <form action="<%= adminBase %>/products/<%= p.id %>/delete" method="POST" data-confirm="حذف شود؟"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn small danger" type="submit">حذف</button></form>
           </td>
         </tr>
         <% }) %>

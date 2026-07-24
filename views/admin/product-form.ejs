@@ -7,53 +7,19 @@
     <div class="card">
       <form action="<%= adminBase %>/products/<%= product ? (product.id + '/edit') : 'new' %>?_csrf=<%= csrfToken %>" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <div class="field">
-          <label>نام کالا</label>
-          <input type="text" name="name" value="<%= product ? product.name : '' %>" required>
-        </div>
-        <div class="field">
-          <label>دسته‌بندی</label>
-          <select name="category_id">
-            <option value="">بدون دسته</option>
-            <% categories.forEach(function(c) { %>
-              <option value="<%= c.id %>" <%= (product && product.category_id === c.id) ? 'selected' : '' %>><%= c.name %></option>
-            <% }) %>
+        <div class="field"><label>نام کالا</label><input type="text" name="name" value="<%= product ? product.name : '' %>" required></div>
+        <div class="field"><label>دسته‌بندی</label>
+          <select name="category_id"><option value="">بدون دسته</option>
+            <% categories.forEach(function(c) { %><option value="<%= c.id %>" <%= (product && product.category_id === c.id) ? 'selected' : '' %>><%= c.name %></option><% }) %>
           </select>
         </div>
-        <div class="field">
-          <label>توضیحات</label>
-          <textarea name="description" rows="4"><%= product ? product.description : '' %></textarea>
-        </div>
-        <div class="field">
-          <label>قیمت (تومان)</label>
-          <input type="number" name="price" value="<%= product ? product.price : '' %>" required min="0">
-        </div>
-        <div class="field">
-          <label>موجودی</label>
-          <input type="number" name="stock" value="<%= product ? product.stock : 0 %>" min="0">
-        </div>
-        <% if (product && product.image_url) { %>
-        <div class="field">
-          <label>عکس فعلی</label>
-          <img src="<%= product.image_url %>" style="width:120px;height:120px;object-fit:contain;border-radius:10px;background:#0e0e0e;">
-        </div>
-        <% } %>
-        <div class="field">
-          <label>آپلود عکس جدید از گوشی</label>
-          <input type="file" name="image_file" accept="image/*">
-        </div>
-        <div class="field">
-          <label>یا لینک عکس (اختیاری، اگر فایل آپلود نکنید)</label>
-          <input type="text" name="image_url" value="<%= product ? product.image_url : '/img/placeholder.svg' %>">
-        </div>
-        <% if (product) { %>
-        <div class="field">
-          <label style="display:flex;align-items:center;gap:8px;color:#fff;">
-            <input type="checkbox" name="active" value="1" <%= product.active ? 'checked' : '' %> style="width:auto;">
-            کالا فعال و قابل نمایش باشد
-          </label>
-        </div>
-        <% } %>
+        <div class="field"><label>توضیحات</label><textarea name="description" rows="4"><%= product ? product.description : '' %></textarea></div>
+        <div class="field"><label>قیمت (تومان)</label><input type="number" name="price" value="<%= product ? product.price : '' %>" required min="0"></div>
+        <div class="field"><label>موجودی</label><input type="number" name="stock" value="<%= product ? product.stock : 0 %>" min="0"></div>
+        <% if (product && product.image_url) { %><div class="field"><label>عکس فعلی</label><img src="<%= product.image_url %>" style="width:120px;height:120px;object-fit:contain;border-radius:10px;background:#0e0e0e;"></div><% } %>
+        <div class="field"><label>آپلود عکس جدید از گوشی</label><input type="file" name="image_file" accept="image/*"></div>
+        <div class="field"><label>یا لینک عکس (اختیاری)</label><input type="text" name="image_url" value="<%= product ? product.image_url : '/img/placeholder.svg' %>"></div>
+        <% if (product) { %><div class="field"><label style="display:flex;align-items:center;gap:8px;color:#fff;"><input type="checkbox" name="active" value="1" <%= product.active ? 'checked' : '' %> style="width:auto;">کالا فعال و قابل نمایش باشد</label></div><% } %>
         <button class="btn" type="submit"><%= product ? 'ذخیره تغییرات' : 'افزودن کالا' %></button>
       </form>
     </div>

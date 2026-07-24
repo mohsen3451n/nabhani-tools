@@ -10,12 +10,9 @@
       <tbody>
         <% orders.forEach(function(o) { %>
         <tr>
-          <td>#<%= o.id %></td>
-          <td><%= o.user_phone %></td>
-          <td><%= o.total.toLocaleString('fa-IR') %></td>
+          <td>#<%= o.id %></td><td><%= o.user_phone %></td><td><%= o.total.toLocaleString('fa-IR') %></td>
           <td><%= o.payment_method === 'card2card' ? 'کارت به کارت' : 'درگاه بانکی' %></td>
-          <td><span class="badge <%= o.status %>"><%= o.status %></span></td>
-          <td><%= o.created_at %></td>
+          <td><span class="badge <%= o.status %>"><%= o.status %></span></td><td><%= o.created_at %></td>
           <td><a class="btn small secondary" href="<%= adminBase %>/orders/<%= o.id %>">جزئیات</a></td>
         </tr>
         <% }) %>

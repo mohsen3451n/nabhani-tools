@@ -15,33 +15,25 @@
       <p>وضعیت: <span class="badge <%= order.status %>"><%= order.status %></span></p>
       <p>مبلغ کل: <strong class="price"><%= order.total.toLocaleString('fa-IR') %> تومان</strong></p>
     </div>
-
     <div class="card">
-      <div class="section-title" style="margin-top:0;">اقلام</div>
+      <div class="section-title" style="margin-top:0;">اقلام سفارش (برای تحویل کالا)</div>
       <% items.forEach(function(i) { %>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
-          <span><%= i.product_name %> × <%= i.qty %></span>
-          <span><%= (i.price * i.qty).toLocaleString('fa-IR') %> تومان</span>
+        <div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+          <img src="<%= i.product_image || '/img/placeholder.svg' %>" style="width:50px;height:50px;object-fit:contain;border-radius:8px;background:#0e0e0e;">
+          <div style="flex:1;">
+            <div><%= i.product_name %> × <%= i.qty %></div>
+            <div class="price" style="font-size:13px;"><%= (i.price*i.qty).toLocaleString('fa-IR') %> تومان</div>
+          </div>
         </div>
       <% }) %>
     </div>
-
     <% if (order.status === 'awaiting_verification') { %>
     <div style="display:flex;gap:10px;">
-      <form action="<%= adminBase %>/orders/<%= order.id %>/confirm" method="POST" style="flex:1;">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <button class="btn" type="submit">تایید واریزی و تکمیل سفارش</button>
-      </form>
-      <form action="<%= adminBase %>/orders/<%= order.id %>/reject" method="POST" style="flex:1;" data-confirm="سفارش لغو شود؟">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <button class="btn danger" type="submit">لغو سفارش</button>
-      </form>
+      <form action="<%= adminBase %>/orders/<%= order.id %>/confirm" method="POST" style="flex:1;"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn" type="submit">تایید واریزی و تکمیل سفارش</button></form>
+      <form action="<%= adminBase %>/orders/<%= order.id %>/reject" method="POST" style="flex:1;" data-confirm="سفارش لغو شود؟"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn danger" type="submit">لغو سفارش</button></form>
     </div>
-    <% } else if (['pending', 'paid'].includes(order.status)) { %>
-    <form action="<%= adminBase %>/orders/<%= order.id %>/reject" method="POST" data-confirm="سفارش لغو شود؟">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <button class="btn danger" type="submit">لغو سفارش</button>
-    </form>
+    <% } else if (['pending','paid'].includes(order.status)) { %>
+    <form action="<%= adminBase %>/orders/<%= order.id %>/reject" method="POST" data-confirm="سفارش لغو شود؟"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn danger" type="submit">لغو سفارش</button></form>
     <% } %>
   </div>
 </body>

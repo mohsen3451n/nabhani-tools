@@ -1,0 +1,20 @@
+<div class="admin-topbar">
+  <strong>پنل مدیریت ابزار نبهانی</strong>
+  <% if (admin) { %>
+  <form action="<%= adminBase %>/logout" method="POST">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <button class="btn secondary small" type="submit">خروج</button>
+  </form>
+  <% } %>
+</div>
+<% if (admin) { %>
+<div class="container">
+  <div class="admin-nav">
+    <a href="<%= adminBase %>">داشبورد</a>
+    <a href="<%= adminBase %>/products">محصولات</a>
+    <a href="<%= adminBase %>/categories">دسته‌بندی‌ها</a>
+    <a href="<%= adminBase %>/orders">سفارش‌ها</a>
+    <a href="<%= adminBase %>/settings">تنظیمات</a>
+  </div>
+</div>
+<% } %>

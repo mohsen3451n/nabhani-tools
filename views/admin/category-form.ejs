@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head><%- include('../partials/head', { title: (category ? 'ویرایش دسته‌بندی' : 'دسته‌بندی جدید') + ' | پنل مدیریت' }) %></head>
+<body>
+  <%- include('../partials/admin-topbar') %>
+  <div class="container">
+    <div class="card">
+      <form action="<%= adminBase %>/categories/<%= category ? (category.id + '/edit') : 'new' %>?_csrf=<%= csrfToken %>" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="field"><label>نام دسته‌بندی</label><input type="text" name="name" value="<%= category ? category.name : '' %>" required></div>
+        <% if (category && category.image_url) { %>
+        <div class="field"><label>عکس فعلی</label><img src="<%= category.image_url %>" style="width:100px;height:100px;object-fit:cover;border-radius:50%;background:#0e0e0e;"></div>
+        <% } %>
+        <div class="field"><label>آپلود عکس پروفایل دسته‌بندی از گوشی</label><input type="file" name="image_file" accept="image/*"></div>
+        <div class="field"><label>یا لینک عکس (اختیاری)</label><input type="text" name="image_url" value="<%= category ? (category.image_url||'') : '' %>"></div>
+        <button class="btn" type="submit"><%= category ? 'ذخیره تغییرات' : 'افزودن دسته‌بندی' %></button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

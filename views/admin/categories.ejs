@@ -4,21 +4,17 @@
 <body>
   <%- include('../partials/admin-topbar') %>
   <div class="container">
-    <div class="card">
-      <form action="<%= adminBase %>/categories/new" method="POST" style="display:flex;gap:10px;">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <input type="text" name="name" placeholder="نام دسته‌بندی جدید" required style="flex:1;background:var(--bg-soft);border:1px solid var(--border);color:#fff;border-radius:10px;padding:10px;">
-        <button class="btn small" type="submit">افزودن</button>
-      </form>
-    </div>
-
+    <a class="btn" href="<%= adminBase %>/categories/new">+ افزودن دسته‌بندی جدید</a>
     <% categories.forEach(function(c) { %>
-      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
-        <span><%= c.name %></span>
-        <form action="<%= adminBase %>/categories/<%= c.id %>/delete" method="POST" data-confirm="حذف شود؟">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <button class="btn small danger" type="submit">حذف</button>
-        </form>
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <img src="<%= c.image_url || '/img/placeholder.svg' %>" style="width:50px;height:50px;object-fit:cover;border-radius:50%;background:#0e0e0e;">
+          <span><%= c.name %></span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <a class="btn small secondary" href="<%= adminBase %>/categories/<%= c.id %>/edit">ویرایش</a>
+          <form action="<%= adminBase %>/categories/<%= c.id %>/delete" method="POST" data-confirm="حذف شود؟"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn small danger" type="submit">حذف</button></form>
+        </div>
       </div>
     <% }) %>
   </div>

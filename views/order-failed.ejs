@@ -4,10 +4,7 @@
 <body>
   <%- include('partials/topbar') %>
   <div class="container">
-    <div class="card" style="text-align:center;">
-      <h2>❌ پرداخت ناموفق بود</h2>
-      <p>سفارش #<%= order.id %> پرداخت نشد. می‌توانید دوباره تلاش کنید یا از روش کارت به کارت استفاده کنید.</p>
-    </div>
+    <div class="card" style="text-align:center;"><h2>❌ پرداخت ناموفق بود</h2><p>سفارش #<%= order.id %> پرداخت نشد.</p></div>
     <a class="btn" href="/orders">سفارش‌های من</a>
     <a class="btn secondary" href="/">بازگشت به فروشگاه</a>
   </div>

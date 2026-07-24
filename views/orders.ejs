@@ -7,13 +7,10 @@
     <div class="section-title">سفارش‌های من</div>
     <% orders.forEach(function(o) { %>
       <div class="card">
-        <div style="display:flex;justify-content:space-between;">
-          <span>سفارش #<%= o.id %></span>
-          <span class="badge <%= o.status %>"><%= o.status %></span>
-        </div>
+        <div style="display:flex;justify-content:space-between;"><span>سفارش #<%= o.id %></span><span class="badge <%= o.status %>"><%= o.status %></span></div>
         <div style="margin-top:6px;color:var(--text-dim);"><%= o.created_at %></div>
         <div class="price" style="margin-top:6px;"><%= o.total.toLocaleString('fa-IR') %> تومان</div>
-        <% if (['pending', 'awaiting_verification'].includes(o.status)) { %>
+        <% if (['pending','awaiting_verification'].includes(o.status)) { %>
           <form action="/order/<%= o.id %>/cancel" method="POST" data-confirm="این سفارش لغو شود؟" style="margin-top:10px;">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <button class="btn danger small" type="submit">لغو سفارش</button>
@@ -22,10 +19,7 @@
       </div>
     <% }) %>
     <% if (orders.length === 0) { %><p>هنوز سفارشی ثبت نکرده‌اید.</p><% } %>
-    <form action="/logout" method="POST" style="margin-top:20px;">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <button class="btn secondary" type="submit">خروج از حساب</button>
-    </form>
+    <form action="/logout" method="POST" style="margin-top:20px;"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="btn secondary" type="submit">خروج از حساب</button></form>
   </div>
   <%- include('partials/bottom-nav') %>
 </body>

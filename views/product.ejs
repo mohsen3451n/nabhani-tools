@@ -10,20 +10,14 @@
       <div class="price" style="font-size:20px;"><%= product.price.toLocaleString('fa-IR') %> تومان</div>
       <p style="color:var(--text-dim);"><%= product.description %></p>
       <p class="stock"><%= product.stock > 0 ? ('موجودی: ' + product.stock + ' عدد') : 'ناموجود' %></p>
-
       <% if (product.stock > 0) { %>
       <form action="/cart/add" method="POST">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <input type="hidden" name="product_id" value="<%= product.id %>">
-        <div class="field">
-          <label>تعداد</label>
-          <input type="number" name="qty" value="1" min="1" max="<%= product.stock %>">
-        </div>
+        <div class="field"><label>تعداد</label><input type="number" name="qty" value="1" min="1" max="<%= product.stock %>"></div>
         <button class="btn" type="submit">افزودن به سبد خرید</button>
       </form>
-      <% } else { %>
-        <button class="btn secondary" disabled>ناموجود</button>
-      <% } %>
+      <% } else { %><button class="btn secondary" disabled>ناموجود</button><% } %>
     </div>
   </div>
   <%- include('partials/bottom-nav') %>

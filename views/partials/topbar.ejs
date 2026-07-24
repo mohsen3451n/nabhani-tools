@@ -13,11 +13,7 @@
 <div class="site-menu-overlay" id="siteMenuOverlay"></div>
 <div class="site-menu" id="siteMenu">
   <div class="site-menu-title">فروشگاه ابزار نبهانی</div>
-  <% if (shopPhone) { %>
-    <a href="tel:<%= shopPhone %>" class="site-menu-item">📞 تماس با ما: <%= shopPhone %></a>
-  <% } %>
-  <% if (shopInstagram) { %>
-    <a href="<%= shopInstagram %>" target="_blank" rel="noopener" class="site-menu-item">📷 صفحه اینستاگرام ما</a>
-  <% } %>
+  <% if (shopPhone) { %><a href="tel:<%= shopPhone %>" class="site-menu-item">📞 تماس با ما: <%= shopPhone %></a><% } %>
+  <% if (shopInstagram) { %><a href="<%= shopInstagram %>" target="_blank" rel="noopener" class="site-menu-item">📷 صفحه اینستاگرام ما</a><% } %>
   <a href="/admin-access" class="site-menu-item admin">🔐 ورود به پنل مدیریت</a>
 </div>

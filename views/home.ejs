@@ -3,23 +3,21 @@
 <head><%- include('partials/head', { title: 'ابزار نبهانی | فروشگاه ابزار، چسب و رنگ' }) %></head>
 <body>
   <%- include('partials/topbar') %>
-
+  <%- include('partials/pwa-banner') %>
   <div class="container">
     <div class="section-title">دسته‌بندی‌های ابزار نبهانی</div>
     <div class="cat-grid">
       <% categories.forEach(function(c) { %>
         <a class="cat-item" href="/category/<%= c.slug %>">
-          <div class="circle"><img src="/img/placeholder.svg" alt="<%= c.name %>"></div>
+          <div class="circle"><img src="<%= c.image_url || '/img/placeholder.svg' %>" alt="<%= c.name %>"></div>
           <div class="label"><%= c.name %></div>
         </a>
       <% }) %>
     </div>
-
     <div class="banner">
       <h3>فروشگاه ابزار نبهانی</h3>
       <p>ابزار، چسب و رنگ با کیفیت و قیمت مناسب، ارسال به سراسر کشور</p>
     </div>
-
     <div class="section-title">جدیدترین کالاها</div>
     <div class="product-grid">
       <% featured.forEach(function(p) { %>
@@ -32,7 +30,6 @@
       <% }) %>
     </div>
   </div>
-
   <%- include('partials/bottom-nav') %>
 </body>
 </html>

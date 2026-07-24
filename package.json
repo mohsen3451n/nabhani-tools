@@ -1,16 +1,10 @@
 {
   "name": "nabhani-tools",
   "version": "1.0.0",
-  "description": "فروشگاه آنلاین ابزار نبهانی - ابزار، چسب و رنگ",
+  "description": "فروشگاه آنلاین ابزار نبهانی",
   "main": "src/server.js",
-  "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
-    "seed": "node src/seed.js"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
+  "scripts": { "start": "node src/server.js", "seed": "node src/seed.js" },
+  "engines": { "node": ">=18.0.0" },
   "dependencies": {
     "better-sqlite3": "^11.3.0",
     "cookie-parser": "^1.4.6",
